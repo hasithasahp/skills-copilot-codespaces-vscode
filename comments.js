@@ -1,32 +1,53 @@
-// Create a web server
-// Create a route for GET /comments
-// Read the comments.json file
-// Send back the comments as JSON
-// Start the server
+// Create web server that can accept incoming requests.
+// Create a route that accepts incoming POST requests to /comments
+// Create a route that accepts incoming GET requests to /comments
+// Create a route that accepts incoming GET requests to /comments/:id
+// Create a route that accepts incoming PUT requests to /comments/:id
+// Create a route that accepts incoming DELETE requests to /comments/:id
 
-// 1. Create a web server
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const PORT = 3000;
 
-// 2. Create a route for GET /comments
+app.use(bodyParser.json());
+
+let comments = [
+  {id: 1, body: 'This is a comment'},
+  {id: 2, body: 'This is another comment'},
+  {id: 3, body: 'This is a third comment'}
+];
+
+app.post('/comments', (req, res) => {
+  let newComment = req.body;
+  comments.push(newComment);
+  res.json(newComment);
+});
+
 app.get('/comments', (req, res) => {
-    // 3. Read the comments.json file
-    const comments = require('./comments.json');
-    // 4. Send back the comments as JSON
-    res.json(comments);
+  res.json(comments);
 });
 
-// 5. Start the server
-app.listen(3000, () => {
-    console.log('Server is listening on http://localhost:3000');
+app.get('/comments/:id', (req, res) => {
+  let id = parseInt(req.params.id);
+  let comment = comments.find(comment => comment.id === id);
+  res.json(comment);
 });
 
-// Test the API
-// In the terminal, run node comments.js
-// In the browser, go to http://localhost:3000/comments
-// You should see the comments as JSON
+app.put('/comments/:id', (req, res) => {
+  let id = parseInt(req.params.id);
+  let updatedComment = req.body;
+  let comment = comments.find(comment => comment.id === id);
+  comment.body = updatedComment.body;
+  res.json(comment);
+});
 
-// You can also use Postman to test the API
-// Open Postman
-// Send a GET request to http://localhost:3000/comments
-// You should see the comments as JSON
+app.delete('/comments/:id', (req, res) => {
+  let id = parseInt(req.params.id);
+  comments = comments.filter(comment => comment.id !== id);
+  res.json({deleted: true});
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
